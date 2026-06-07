@@ -1,0 +1,191 @@
+.gallery__wrapper {
+  position: relative;
+  width: 100%;
+  max-width: min(100%, 35rem);
+  min-width: 0;
+  overflow: hidden;
+  user-select: none;
+}
+
+.gallery__image__container {
+  display: flex;
+  gap: 1.5rem;
+  will-change: transform;
+  height: 100%;
+}
+
+.gallery__media {
+  flex-shrink: 0;
+  aspect-ratio: 4 / 3.35;
+  width: clamp(240px, 28vw, 360px);
+  max-height: 390px;
+  height: clamp(220px, 31vw, 380px);
+  overflow: hidden;
+  position: relative;
+  display: block;
+  border: 1px solid rgba(213, 181, 111, 0.18);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.36), inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+  background: #0f0d11;
+}
+
+@media (max-width: 767px) {
+  .gallery__image__container {
+    gap: 0.75rem;
+  }
+
+  .gallery__media {
+    height: min(34vh, 300px);
+    width: min(78vw, 290px);
+  }
+}
+
+.gallery__media__image {
+  position: absolute;
+  top: 0;
+  left: -12.5%;
+  width: 125%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+  filter: saturate(0.92) contrast(1.05) brightness(0.92);
+}
+
+.hero-photo-deck {
+  position: relative;
+  width: 100%;
+  max-width: min(100%, 36rem);
+  min-width: 0;
+  user-select: none;
+}
+
+.hero-photo-deck-kicker {
+  margin-bottom: 0.65rem;
+  color: rgba(213, 181, 111, 0.78);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+}
+
+.hero-photo-deck-stage {
+  position: relative;
+  display: grid;
+  height: clamp(20rem, 35vw, 28rem);
+  place-items: center;
+  overflow: hidden;
+  perspective: 1100px;
+  border: 1px solid rgba(213, 181, 111, 0.12);
+  background:
+    radial-gradient(circle at 50% 48%, rgba(239, 143, 69, 0.13), transparent 18rem),
+    linear-gradient(90deg, rgba(8, 7, 10, 0.38), rgba(8, 7, 10, 0.05), rgba(8, 7, 10, 0.38));
+}
+
+.hero-photo-deck-stage::before {
+  content: "";
+  position: absolute;
+  inset: 9% 19%;
+  pointer-events: none;
+  border: 1px solid rgba(242, 219, 164, 0.1);
+  background: radial-gradient(circle at 50% 42%, rgba(242, 219, 164, 0.1), transparent 60%);
+  filter: blur(0.2px);
+}
+
+.hero-photo-card {
+  position: absolute;
+  width: clamp(13rem, 24vw, 18.8rem);
+  aspect-ratio: 4 / 5.25;
+  overflow: hidden;
+  border: 1px solid rgba(242, 219, 164, 0.18);
+  border-radius: 0.5rem;
+  background: #100d12;
+  box-shadow: 0 26px 72px rgba(0, 0, 0, 0.38);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.hero-photo-card.is-active {
+  border-color: rgba(242, 219, 164, 0.44);
+  box-shadow:
+    0 30px 86px rgba(0, 0, 0, 0.48),
+    0 0 34px rgba(239, 143, 69, 0.14),
+    inset 0 0 0 1px rgba(255, 244, 218, 0.08);
+  animation: hero-card-breathe 3.8s ease-in-out infinite;
+}
+
+@keyframes hero-card-breathe {
+  0%, 100% {
+    box-shadow:
+      0 30px 86px rgba(0, 0, 0, 0.48),
+      0 0 34px rgba(239, 143, 69, 0.14),
+      inset 0 0 0 1px rgba(255, 244, 218, 0.08);
+  }
+  50% {
+    box-shadow:
+      0 36px 100px rgba(0, 0, 0, 0.54),
+      0 0 56px rgba(239, 143, 69, 0.28),
+      inset 0 0 0 1px rgba(255, 244, 218, 0.14);
+  }
+}
+
+.hero-photo-card.is-active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 218, 0.13), transparent 24%),
+    radial-gradient(circle at 50% 12%, rgba(242, 219, 164, 0.16), transparent 32%);
+  opacity: 0.72;
+}
+
+.hero-photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.94) contrast(1.06) brightness(0.9);
+  transform: scale(1.035);
+  transition: filter 0.28s ease, transform 0.28s ease;
+}
+
+.hero-photo-card.is-active:hover img {
+  filter: saturate(1.02) contrast(1.08) brightness(0.98);
+  transform: scale(1.065);
+}
+
+.hero-photo-dots {
+  margin-top: 0.85rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.38rem;
+}
+
+.hero-photo-dots button {
+  width: 0.42rem;
+  height: 0.42rem;
+  border: 1px solid rgba(213, 181, 111, 0.38);
+  border-radius: 999px;
+  background: rgba(213, 181, 111, 0.12);
+  transition: width 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-photo-dots button.is-active {
+  width: 1.2rem;
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+}
+
+@media (max-width: 767px) {
+  .hero-photo-deck-stage {
+    height: min(37vh, 292px);
+  }
+
+  .hero-photo-card {
+    width: min(54vw, 204px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-photo-card,
+  .hero-photo-card img {
+    transition: none;
+  }
+}

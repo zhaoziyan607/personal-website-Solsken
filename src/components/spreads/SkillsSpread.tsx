@@ -8,6 +8,7 @@ import { ShinyText } from '@/components/effects/ShinyText';
 import { Spread } from '@/components/layout/Spread';
 
 const STABLE_FLAME_QUERY = '(max-width: 767px), (hover: none)';
+const SHELL_STABLE_CLASSES = ['is-webview-shell', 'is-mirror-shell'];
 
 type LegacyMediaQueryList = MediaQueryList & {
   addListener?: (listener: (event: MediaQueryListEvent) => void) => void;
@@ -15,7 +16,14 @@ type LegacyMediaQueryList = MediaQueryList & {
 };
 
 function getStableFlamePreference() {
-  return typeof window !== 'undefined' && window.matchMedia(STABLE_FLAME_QUERY).matches;
+  if (typeof window === 'undefined') return false;
+
+  const classList = document.documentElement.classList;
+  if (SHELL_STABLE_CLASSES.some((className) => classList.contains(className))) {
+    return true;
+  }
+
+  return window.matchMedia(STABLE_FLAME_QUERY).matches;
 }
 
 export function SkillsSpread() {
@@ -23,7 +31,7 @@ export function SkillsSpread() {
 
   useEffect(() => {
     const query: LegacyMediaQueryList = window.matchMedia(STABLE_FLAME_QUERY);
-    const update = () => setStableFlame(query.matches);
+    const update = () => setStableFlame(getStableFlamePreference());
 
     update();
     if (typeof query.addEventListener === 'function') {

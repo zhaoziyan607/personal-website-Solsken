@@ -53,6 +53,15 @@
     mask-image: radial-gradient(circle at center, black, transparent 76%);
   }
 
+  html.is-webview-shell,
+  html.is-mirror-shell,
+  html.is-webview-shell body,
+  html.is-mirror-shell body,
+  html.is-webview-shell #root,
+  html.is-mirror-shell #root {
+    background-color: #08070a;
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -446,6 +455,44 @@
   font-size: 0.68rem;
   font-style: normal;
   line-height: 1.15;
+}
+
+html.is-webview-shell .skill-flame-stage::before,
+html.is-mirror-shell .skill-flame-stage::before {
+  filter: none;
+  opacity: 0.42;
+}
+
+html.is-webview-shell .skill-flame,
+html.is-mirror-shell .skill-flame,
+html.is-webview-shell .skill-flame::before,
+html.is-mirror-shell .skill-flame::before,
+html.is-webview-shell .skill-flame::after,
+html.is-mirror-shell .skill-flame::after {
+  animation: none;
+  filter: none;
+}
+
+html.is-webview-shell .flame-orbit-tags,
+html.is-mirror-shell .flame-orbit-tags {
+  display: none;
+}
+
+html.is-webview-shell .flame-layer,
+html.is-mirror-shell .flame-layer {
+  transform: translateX(-50%) translateZ(0);
+  background:
+    linear-gradient(90deg, rgba(8, 7, 10, 0.36), rgba(8, 7, 10, 0.66), rgba(8, 7, 10, 0.36)),
+    rgba(8, 7, 10, 0.5);
+  backdrop-filter: none;
+  backface-visibility: hidden;
+}
+
+html.is-webview-shell .flame-layer-inner,
+html.is-mirror-shell .flame-layer-inner {
+  opacity: 1 !important;
+  transform: none !important;
+  will-change: auto;
 }
 
 .flame-layer-base {

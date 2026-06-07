@@ -8,6 +8,32 @@
       content="Solsken 的 AI 产品经理个人网站：AIGC 图创、大模型落地、C/B/G 跨场景产品实践，以及把 AI 产品做出人的温度。"
     />
     <meta name="theme-color" content="#09070a" />
+    <style>
+      html,
+      body,
+      #root {
+        min-height: 100%;
+        background: #08070a;
+      }
+
+      html {
+        color-scheme: dark;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(213, 181, 111, 0.08), transparent 34rem),
+          linear-gradient(135deg, #08070a, #110c0f 48%, #08070a);
+      }
+
+      #root:empty {
+        min-height: 100dvh;
+        background:
+          radial-gradient(circle at 50% 48%, rgba(239, 143, 69, 0.14), transparent 18rem),
+          #050406;
+      }
+    </style>
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://personal-website-sigma-gray-49.vercel.app/" />
     <meta property="og:type" content="website" />
@@ -38,6 +64,26 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (function () {
+        var html = document.documentElement;
+        var host = window.location.hostname;
+        var ua = navigator.userAgent || "";
+        var isOfficialHost = host === "personal-website-sigma-gray-49.vercel.app";
+        var isWebView = /MicroMessenger|Tara|taraai|WebView| wv\)|AliApp/i.test(ua);
+
+        html.style.backgroundColor = "#08070a";
+        html.classList.add("has-js");
+
+        if (!isOfficialHost) {
+          html.classList.add("is-mirror-shell");
+        }
+
+        if (isWebView) {
+          html.classList.add("is-webview-shell");
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

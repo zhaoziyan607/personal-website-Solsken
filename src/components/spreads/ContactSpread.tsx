@@ -46,6 +46,12 @@ export function ContactSpread() {
 
   return (
     <Spread id="contact">
+      {toast && (
+        <div className="toast-pop contact-toast border border-gold/30 bg-void/95 px-4 py-2 text-sm text-gold shadow-[0_0_30px_rgba(213,181,111,0.18)]">
+          {toast}
+        </div>
+      )}
+
       <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,0.78fr)_minmax(0,1fr)]">
 
         {/* 左侧：联系方式 */}
@@ -113,12 +119,6 @@ export function ContactSpread() {
 
         {/* 右侧：留言表单 */}
         <div className="relative min-w-0">
-          {toast && (
-            <div className="toast-pop absolute -top-14 right-0 left-0 z-20 border border-gold/30 bg-void/95 px-4 py-2 text-sm text-gold shadow-[0_0_30px_rgba(213,181,111,0.18)] sm:left-auto sm:w-fit">
-              {toast}
-            </div>
-          )}
-
           <div className="map-card relative overflow-hidden">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>

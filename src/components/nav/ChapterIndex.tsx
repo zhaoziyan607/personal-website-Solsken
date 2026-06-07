@@ -1,15 +1,17 @@
 import { useEffect, useRef } from 'react';
+import type { MouseEvent } from 'react';
 import { Download } from 'lucide-react';
 import { CHAPTERS } from '@/data/content';
 import { FlameLogo } from '@/components/brand/FlameLogo';
 
 type ChapterIndexProps = {
   activeId: string;
+  onNavigate: (id: string) => void;
 };
 
 const NAV_CHAPTERS = CHAPTERS;
 
-export function ChapterIndex({ activeId }: ChapterIndexProps) {
+export function ChapterIndex({ activeId, onNavigate }: ChapterIndexProps) {
   const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -17,10 +19,27 @@ export function ChapterIndex({ activeId }: ChapterIndexProps) {
     activeLink?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   }, [activeId]);
 
+  function handleAnchorClick(event: MouseEvent<HTMLAnchorElement>, id: string) {
+    const section = document.getElementById(id);
+    if (!section) return;
+
+    event.preventDefault();
+    onNavigate(id);
+    section.scrollIntoView({ block: 'start', behavior: 'smooth' });
+
+    if (window.location.hash !== `#${id}`) {
+      window.history.pushState(null, '', `#${id}`);
+    }
+  }
+
   return (
     <header className="glass-nav fixed top-0 right-0 left-0 z-50">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 py-3 md:gap-3 md:px-8">
-        <a href="#hero" className="group flex shrink-0 items-center gap-1.5 md:gap-2.5">
+        <a
+          href="#hero"
+          onClick={(event) => handleAnchorClick(event, 'hero')}
+          className="group flex shrink-0 items-center gap-1.5 md:gap-2.5"
+        >
           <FlameLogo size={22} className="text-gold md:h-[26px] md:w-[26px]" />
           <span className="font-[family-name:var(--font-display)] text-sm font-semibold text-text transition group-hover:text-gold md:text-base">
             solsken
@@ -35,6 +54,7 @@ export function ChapterIndex({ activeId }: ChapterIndexProps) {
                 <li key={chapter.id} className="shrink-0">
                   <a
                     href={`#${chapter.id}`}
+                    onClick={(event) => handleAnchorClick(event, chapter.id)}
                     className={`gooey-nav-link relative block px-1.5 py-1.5 font-[family-name:var(--font-display)] text-xs whitespace-nowrap transition sm:text-sm md:px-3 md:text-[0.95rem] ${
                       isActive ? 'text-gold drop-shadow-[0_0_10px_rgba(213,181,111,0.45)]' : 'text-muted hover:text-text'
                     }`}

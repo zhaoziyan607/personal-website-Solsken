@@ -15,6 +15,7 @@ function shortestOffset(index: number, active: number, total: number) {
 
 const MOUSE_WHEEL_MIN_DELTA = 100;
 const MOUSE_WHEEL_MAX_DELTA = 160;
+const TRACKPAD_SWIPE_MIN_DELTA = 26;
 const WHEEL_COOLDOWN_MS = 820;
 
 type HeroPhotoDeckProps = {
@@ -49,6 +50,7 @@ export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps)
     function handleWheel(event: WheelEvent) {
       const absX = Math.abs(event.deltaX);
       const absY = Math.abs(event.deltaY);
+      const isHorizontalTrackpadSwipe = absX >= TRACKPAD_SWIPE_MIN_DELTA && absX > absY * 1.4;
       const isVerticalMouseWheel =
         absX < 1 &&
         (
@@ -56,15 +58,18 @@ export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps)
           (absY >= MOUSE_WHEEL_MIN_DELTA && absY <= MOUSE_WHEEL_MAX_DELTA)
         );
 
-      if (!isVerticalMouseWheel) return;
+      if (!isHorizontalTrackpadSwipe && !isVerticalMouseWheel) return;
 
       event.preventDefault();
+      event.stopPropagation();
 
       const now = performance.now();
       if (now - lastWheelAtRef.current < WHEEL_COOLDOWN_MS) return;
 
       lastWheelAtRef.current = now;
-      stepImage(event.deltaY > 0 ? 1 : -1);
+      stepImage(isHorizontalTrackpadSwipe
+        ? (event.deltaX > 0 ? 1 : -1)
+        : (event.deltaY > 0 ? 1 : -1));
     }
 
     stage.addEventListener('wheel', handleWheel, { passive: false });

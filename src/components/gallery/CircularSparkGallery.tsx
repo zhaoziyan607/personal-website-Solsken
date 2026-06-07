@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { LIFESTYLE_GALLERY_ITEMS } from '@/data/content';
@@ -11,9 +11,16 @@ function shortestOffset(index: number, active: number, total: number) {
   return offset;
 }
 
+const MOUSE_WHEEL_MIN_DELTA = 100;
+const MOUSE_WHEEL_MAX_DELTA = 160;
+const TRACKPAD_SWIPE_MIN_DELTA = 26;
+const WHEEL_COOLDOWN_MS = 820;
+
 export function CircularSparkGallery() {
   const [active, setActive] = useState(0);
   const [hovering, setHovering] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const lastWheelAtRef = useRef(0);
   const total = LIFESTYLE_GALLERY_ITEMS.length;
   const activeItem = LIFESTYLE_GALLERY_ITEMS[active];
   const visibleItems = useMemo(
@@ -39,11 +46,45 @@ export function CircularSparkGallery() {
     return () => window.clearInterval(timer);
   }, [active, hovering, total]);
 
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage || total <= 1) return;
+
+    function handleWheel(event: WheelEvent) {
+      const absX = Math.abs(event.deltaX);
+      const absY = Math.abs(event.deltaY);
+      const isHorizontalTrackpadSwipe = absX >= TRACKPAD_SWIPE_MIN_DELTA && absX > absY * 1.4;
+      const isVerticalMouseWheel =
+        absX < 1 &&
+        (
+          event.deltaMode !== WheelEvent.DOM_DELTA_PIXEL ||
+          (absY >= MOUSE_WHEEL_MIN_DELTA && absY <= MOUSE_WHEEL_MAX_DELTA)
+        );
+
+      if (!isHorizontalTrackpadSwipe && !isVerticalMouseWheel) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const now = performance.now();
+      if (now - lastWheelAtRef.current < WHEEL_COOLDOWN_MS) return;
+
+      lastWheelAtRef.current = now;
+      step(isHorizontalTrackpadSwipe
+        ? (event.deltaX > 0 ? 1 : -1)
+        : (event.deltaY > 0 ? 1 : -1));
+    }
+
+    stage.addEventListener('wheel', handleWheel, { passive: false });
+    return () => stage.removeEventListener('wheel', handleWheel);
+  }, [total]);
+
   return (
     <div className="circular-gallery">
       {/* 图片舞台 + 左右箭头同层，箭头固定在舞台两侧 */}
       <div className="relative">
         <div
+          ref={stageRef}
           className="circular-gallery-stage"
           onPointerEnter={() => setHovering(true)}
           onPointerLeave={() => setHovering(false)}

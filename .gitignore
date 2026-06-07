@@ -22,5 +22,3 @@ Thumbs.db
 # TypeScript build info
 *.tsbuildinfo
 
-# Raw source assets (originals stay local, deployed copies are in public/)
-个人网站素材/

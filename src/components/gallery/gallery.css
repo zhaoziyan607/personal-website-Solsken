@@ -72,6 +72,7 @@
   place-items: center;
   overflow: hidden;
   perspective: 1100px;
+  touch-action: pan-y;
   border: 1px solid rgba(213, 181, 111, 0.12);
   background:
     radial-gradient(circle at 50% 48%, rgba(239, 143, 69, 0.13), transparent 18rem),

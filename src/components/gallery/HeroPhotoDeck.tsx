@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import './gallery.css';
 
 function wrapIndex(index: number, total: number) {
@@ -111,6 +112,11 @@ export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps)
     setActive((current) => wrapIndex(current + direction, total));
     setManualVersion((current) => current + 1);
   }
+
+  useSwipeNavigation({
+    ref: stageRef,
+    onSwipe: stepImage,
+  });
 
   return (
     <div className="hero-photo-deck">

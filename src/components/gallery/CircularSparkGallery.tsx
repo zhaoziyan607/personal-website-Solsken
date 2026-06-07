@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { LIFESTYLE_GALLERY_ITEMS } from '@/data/content';
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 
 function shortestOffset(index: number, active: number, total: number) {
   let offset = index - active;
@@ -36,6 +37,11 @@ export function CircularSparkGallery() {
   function step(direction: number) {
     setActive((current) => (current + direction + total) % total);
   }
+
+  useSwipeNavigation({
+    ref: stageRef,
+    onSwipe: step,
+  });
 
   // 每次 active 变化（含手动切换）都重新计时，避免切图后立刻被自动切走
   useEffect(() => {

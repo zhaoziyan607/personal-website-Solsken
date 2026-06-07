@@ -1,20 +1,30 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Copy, Download, Hash, Mail, MessageCircle, Send } from 'lucide-react';
 import { CONTACT } from '@/data/content';
 import { submitVisitorMessage } from '@/services/messageApi';
 import { Spread } from '@/components/layout/Spread';
 
+type ToastState = {
+  id: number;
+  message: string;
+};
+
 export function ContactSpread() {
   const [content, setContent] = useState('');
-  const [toast, setToast] = useState('');
+  const [toast, setToast] = useState<ToastState | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     if (!toast) return;
-    const timer = window.setTimeout(() => setToast(''), 2800);
+    const timer = window.setTimeout(() => setToast(null), 2800);
     return () => window.clearTimeout(timer);
   }, [toast]);
+
+  function showToast(message: string) {
+    setToast({ id: Date.now(), message });
+  }
 
   async function copyValue(value: string) {
     try {
@@ -22,7 +32,7 @@ export function ContactSpread() {
     } catch {
       window.prompt('复制这段联系方式', value);
     }
-    setToast('已复制到剪贴板。');
+    showToast('已复制到剪贴板。');
   }
 
   async function submitMessage(event: React.FormEvent<HTMLFormElement>) {
@@ -38,19 +48,24 @@ export function ContactSpread() {
       setContent('');
       setSubmitted(true);
     } else if (result.error === 'not_configured') {
-      setToast('留言功能部署前需配置数据库，本地环境暂不可用。');
+      showToast('留言功能部署前需配置数据库，本地环境暂不可用。');
     } else {
-      setToast('发送失败，请直接发邮件给我。');
+      showToast('发送失败，请直接发邮件给我。');
     }
   }
 
   return (
     <Spread id="contact">
-      {toast && (
-        <div className="toast-pop contact-toast border border-gold/30 bg-void/95 px-4 py-2 text-sm text-gold shadow-[0_0_30px_rgba(213,181,111,0.18)]">
-          {toast}
-        </div>
-      )}
+      {toast &&
+        createPortal(
+          <div
+            key={toast.id}
+            className="toast-pop contact-toast border border-gold/30 bg-void/95 px-4 py-2 text-sm text-gold shadow-[0_0_30px_rgba(213,181,111,0.18)]"
+          >
+            {toast.message}
+          </div>,
+          document.body,
+        )}
 
       <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,0.78fr)_minmax(0,1fr)]">
 

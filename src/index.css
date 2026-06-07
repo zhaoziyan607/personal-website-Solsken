@@ -1525,15 +1525,21 @@
 
 .contact-toast {
   position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 4.75rem);
   right: 1rem;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
   left: 1rem;
-  z-index: 80;
+  z-index: 90;
   pointer-events: none;
   margin-inline: auto;
   max-width: min(28rem, calc(100vw - 2rem));
   text-align: center;
   backdrop-filter: blur(18px);
+}
+
+@media (min-width: 768px) {
+  .contact-toast {
+    top: calc(env(safe-area-inset-top, 0px) + 5.5rem);
+  }
 }
 
 @keyframes flame-draw {

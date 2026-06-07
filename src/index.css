@@ -464,13 +464,23 @@ html.is-mirror-shell .skill-flame-stage::before {
 }
 
 html.is-webview-shell .skill-flame,
-html.is-mirror-shell .skill-flame,
-html.is-webview-shell .skill-flame::before,
-html.is-mirror-shell .skill-flame::before,
-html.is-webview-shell .skill-flame::after,
-html.is-mirror-shell .skill-flame::after {
+html.is-mirror-shell .skill-flame {
   animation: none;
   filter: none;
+}
+
+html.is-webview-shell .skill-flame::before,
+html.is-mirror-shell .skill-flame::before {
+  animation: flame-breathe 4.8s ease-in-out infinite;
+  filter: none;
+  will-change: transform;
+}
+
+html.is-webview-shell .skill-flame::after,
+html.is-mirror-shell .skill-flame::after {
+  animation: flame-breathe 4.1s ease-in-out infinite reverse;
+  filter: none;
+  will-change: transform;
 }
 
 html.is-webview-shell .flame-orbit-tags,
@@ -1683,11 +1693,21 @@ html.is-mirror-shell .flame-layer-inner {
     opacity: 0.42;
   }
 
-  .skill-flame.is-stable-mobile,
-  .skill-flame.is-stable-mobile::before,
-  .skill-flame.is-stable-mobile::after {
+  .skill-flame.is-stable-mobile {
     animation: none;
     filter: none;
+  }
+
+  .skill-flame.is-stable-mobile::before {
+    animation: flame-breathe 4.8s ease-in-out infinite;
+    filter: none;
+    will-change: transform;
+  }
+
+  .skill-flame.is-stable-mobile::after {
+    animation: flame-breathe 4.1s ease-in-out infinite reverse;
+    filter: none;
+    will-change: transform;
   }
 
   .flame-orbit-tags {

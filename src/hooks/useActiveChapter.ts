@@ -1,13 +1,40 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export function useActiveChapter(chapterIds: readonly string[]) {
   const [activeId, setActiveId] = useState(chapterIds[0]);
+  const lockedTargetRef = useRef<string | null>(null);
+  const lockExpiresAtRef = useRef(0);
+
+  const setManualActive = useCallback((id: string) => {
+    if (!chapterIds.includes(id)) return;
+
+    lockedTargetRef.current = id;
+    lockExpiresAtRef.current = performance.now() + 1400;
+    setActiveId(id);
+  }, [chapterIds]);
 
   useEffect(() => {
     let rafId = 0;
 
     const updateActive = () => {
       const viewportAnchor = Math.min(180, window.innerHeight * 0.24);
+      const lockedTarget = lockedTargetRef.current;
+      if (lockedTarget) {
+        const targetSection = document.getElementById(lockedTarget);
+        const targetRect = targetSection?.getBoundingClientRect();
+        const reachedTarget = Boolean(
+          targetRect && targetRect.top <= viewportAnchor && targetRect.bottom > viewportAnchor,
+        );
+        const lockExpired = performance.now() > lockExpiresAtRef.current;
+
+        if (!reachedTarget && !lockExpired) {
+          setActiveId((current) => (current === lockedTarget ? current : lockedTarget));
+          return;
+        }
+
+        lockedTargetRef.current = null;
+      }
+
       let nextId = chapterIds[0];
 
       chapterIds.forEach((id) => {
@@ -47,5 +74,5 @@ export function useActiveChapter(chapterIds: readonly string[]) {
     };
   }, [chapterIds]);
 
-  return activeId;
+  return { activeId, setManualActive };
 }

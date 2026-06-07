@@ -11,14 +11,16 @@ function shortestOffset(index: number, active: number, total: number) {
   return offset;
 }
 
+const MOUSE_WHEEL_MIN_DELTA = 100;
+const MOUSE_WHEEL_MAX_DELTA = 160;
+const TRACKPAD_SWIPE_MIN_DELTA = 26;
+const WHEEL_COOLDOWN_MS = 820;
+
 export function CircularSparkGallery() {
   const [active, setActive] = useState(0);
-  const [dragging, setDragging] = useState(false);
   const [hovering, setHovering] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
-  const dragStartRef = useRef<number | null>(null);
-  const lastWheelTimeRef = useRef(0);
-  const wheelRemainderRef = useRef(0);
+  const lastWheelAtRef = useRef(0);
   const total = LIFESTYLE_GALLERY_ITEMS.length;
   const activeItem = LIFESTYLE_GALLERY_ITEMS[active];
   const visibleItems = useMemo(
@@ -38,52 +40,44 @@ export function CircularSparkGallery() {
   // 每次 active 变化（含手动切换）都重新计时，避免切图后立刻被自动切走
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced || hovering || dragging) return;
+    if (reduced || hovering) return;
 
     const timer = window.setInterval(() => step(1), 2600);
     return () => window.clearInterval(timer);
-  }, [active, dragging, hovering, total]);
-
-  function stepFromWheel(delta: number) {
-    const now = window.performance.now();
-    wheelRemainderRef.current += delta;
-
-    if (Math.abs(wheelRemainderRef.current) < 46 || now - lastWheelTimeRef.current < 420) return;
-
-    step(wheelRemainderRef.current > 0 ? 1 : -1);
-    wheelRemainderRef.current = 0;
-    lastWheelTimeRef.current = now;
-  }
+  }, [active, hovering, total]);
 
   useEffect(() => {
     const stage = stageRef.current;
-    if (!stage) return;
+    if (!stage || total <= 1) return;
 
-    const onNativeWheel = (event: globalThis.WheelEvent) => {
+    function handleWheel(event: WheelEvent) {
+      const absX = Math.abs(event.deltaX);
+      const absY = Math.abs(event.deltaY);
+      const isHorizontalTrackpadSwipe = absX >= TRACKPAD_SWIPE_MIN_DELTA && absX > absY * 1.4;
+      const isVerticalMouseWheel =
+        absX < 1 &&
+        (
+          event.deltaMode !== WheelEvent.DOM_DELTA_PIXEL ||
+          (absY >= MOUSE_WHEEL_MIN_DELTA && absY <= MOUSE_WHEEL_MAX_DELTA)
+        );
+
+      if (!isHorizontalTrackpadSwipe && !isVerticalMouseWheel) return;
+
       event.preventDefault();
       event.stopPropagation();
-      const axisDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
-      stepFromWheel(axisDelta);
-    };
 
-    stage.addEventListener('wheel', onNativeWheel, { passive: false });
-    return () => stage.removeEventListener('wheel', onNativeWheel);
-  });
+      const now = performance.now();
+      if (now - lastWheelAtRef.current < WHEEL_COOLDOWN_MS) return;
 
-  function beginDrag(clientX: number) {
-    dragStartRef.current = clientX;
-    setDragging(true);
-  }
+      lastWheelAtRef.current = now;
+      step(isHorizontalTrackpadSwipe
+        ? (event.deltaX > 0 ? 1 : -1)
+        : (event.deltaY > 0 ? 1 : -1));
+    }
 
-  function endDrag(clientX: number) {
-    const start = dragStartRef.current;
-    dragStartRef.current = null;
-    setDragging(false);
-    if (start == null) return;
-    const delta = clientX - start;
-    if (Math.abs(delta) < 34) return;
-    step(delta < 0 ? 1 : -1);
-  }
+    stage.addEventListener('wheel', handleWheel, { passive: false });
+    return () => stage.removeEventListener('wheel', handleWheel);
+  }, [total]);
 
   return (
     <div className="circular-gallery">
@@ -91,19 +85,9 @@ export function CircularSparkGallery() {
       <div className="relative">
         <div
           ref={stageRef}
-          className={`circular-gallery-stage ${dragging ? 'is-dragging' : ''}`}
-          onPointerDown={(event) => beginDrag(event.clientX)}
-          onPointerUp={(event) => endDrag(event.clientX)}
+          className="circular-gallery-stage"
           onPointerEnter={() => setHovering(true)}
-          onPointerLeave={() => {
-            setHovering(false);
-            dragStartRef.current = null;
-            setDragging(false);
-          }}
-          onPointerCancel={() => {
-            dragStartRef.current = null;
-            setDragging(false);
-          }}
+          onPointerLeave={() => setHovering(false)}
         >
           {visibleItems.map(({ item, index, offset }) => {
             const distance = Math.abs(offset);

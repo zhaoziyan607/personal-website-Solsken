@@ -1,12 +1,17 @@
 export const GALLERY_IMAGES = [
-  '/gallery/web/photo-8.webp',
-  '/gallery/web/photo-7.webp',
-  '/gallery/web/photo-6.webp',
-  '/gallery/web/photo-5.webp',
-  '/gallery/web/photo-4.webp',
-  '/gallery/web/photo-3.webp',
-  '/gallery/web/photo-2.webp',
-  '/gallery/web/photo-1.webp',
+  '/gallery/hero/hero-01.webp',
+  '/gallery/hero/hero-02.webp',
+  '/gallery/hero/hero-03.webp',
+  '/gallery/hero/hero-04.webp',
+  '/gallery/hero/hero-05.webp',
+  '/gallery/hero/hero-06.webp',
+  '/gallery/hero/hero-07.webp',
+  '/gallery/hero/hero-08.webp',
+  '/gallery/hero/hero-09.webp',
+  '/gallery/hero/hero-10.webp',
+  '/gallery/hero/hero-11.webp',
+  '/gallery/hero/hero-12.webp',
+  '/gallery/hero/hero-13.webp',
 ];
 
 export const CHAPTERS = [

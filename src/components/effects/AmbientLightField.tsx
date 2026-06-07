@@ -158,6 +158,8 @@ export function AmbientLightField() {
     const smoothMouse = { x: 0.5, y: 0.5 };
     const hoverState = { value: 0 };
     const handlePointerMove = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return;
+
       const target = event.target instanceof Element ? event.target : null;
       const isInteractive = Boolean(
         target?.closest('a, button, input, textarea, .map-card, .magic-bento-card, .circular-gallery-card, .scenario-star-pill'),
@@ -182,6 +184,8 @@ export function AmbientLightField() {
     };
 
     const handlePointerDown = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return;
+
       uniforms.uClick.value.set(event.clientX / window.innerWidth, 1 - event.clientY / window.innerHeight);
       uniforms.uClickTime.value = uniforms.uTime.value;
     };

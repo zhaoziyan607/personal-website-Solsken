@@ -993,12 +993,7 @@
   background:
     linear-gradient(90deg, rgba(8, 7, 10, 0.72) 0%, transparent 18%, transparent 82%, rgba(8, 7, 10, 0.72) 100%),
     linear-gradient(180deg, rgba(8, 7, 10, 0.22) 0%, transparent 14%);
-  cursor: grab;
-  touch-action: pan-y;
-}
-
-.circular-gallery-stage.is-dragging {
-  cursor: grabbing;
+  touch-action: auto;
 }
 
 .circular-gallery-card {
@@ -1500,19 +1495,18 @@
   }
 
   .scenario-star-grid {
-    justify-content: flex-start;
-    overflow-x: auto;
-    flex-wrap: nowrap;
+    justify-content: center;
+    overflow: visible;
+    flex-wrap: wrap;
+    gap: 0.45rem;
     padding: 0.68rem;
-    scrollbar-width: none;
-  }
-
-  .scenario-star-grid::-webkit-scrollbar {
-    display: none;
   }
 
   .scenario-star-pill {
-    flex: 0 0 auto;
+    flex: 0 1 auto;
+    min-height: 2.15rem;
+    padding: 0.36rem 0.58rem;
+    font-size: 0.78rem;
   }
 }
 
@@ -1527,6 +1521,19 @@
 
 .toast-pop {
   animation: toast-pop 0.28s ease-out;
+}
+
+.contact-toast {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+  left: 1rem;
+  z-index: 80;
+  pointer-events: none;
+  margin-inline: auto;
+  max-width: min(28rem, calc(100vw - 2rem));
+  text-align: center;
+  backdrop-filter: blur(18px);
 }
 
 @keyframes flame-draw {

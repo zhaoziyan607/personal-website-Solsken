@@ -17,7 +17,7 @@ const MIN_LOADER_MS = 1450;
 
 export default function App() {
   const [loading, setLoading] = useState(true);
-  const activeId = useActiveChapter(CHAPTER_IDS);
+  const { activeId, setManualActive } = useActiveChapter(CHAPTER_IDS);
 
   useEffect(() => {
     const start = Date.now();
@@ -58,7 +58,7 @@ export default function App() {
           transitionDelay: loading ? '0ms' : '50ms',
         }}
       >
-        <MagazineShell activeId={activeId}>
+        <MagazineShell activeId={activeId} onNavigate={setManualActive}>
           <HeroSpread />
           <StrengthsSpread />
           <EducationSpread />

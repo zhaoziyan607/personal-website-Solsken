@@ -13,6 +13,11 @@ function shortestOffset(index: number, active: number, total: number) {
   return offset;
 }
 
+const MOUSE_WHEEL_MIN_DELTA = 100;
+const MOUSE_WHEEL_MAX_DELTA = 160;
+const TRACKPAD_SWIPE_MIN_DELTA = 42;
+const WHEEL_COOLDOWN_MS = 820;
+
 type HeroPhotoDeckProps = {
   images: string[];
   priorityCount?: number;
@@ -20,9 +25,12 @@ type HeroPhotoDeckProps = {
 
 export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps) {
   const [active, setActive] = useState(0);
+  const [manualVersion, setManualVersion] = useState(0);
   const [hovering, setHovering] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const stageRef = useRef<HTMLDivElement>(null);
+  const lastWheelAtRef = useRef(0);
+  const horizontalWheelRef = useRef(0);
   const total = images.length;
 
   useEffect(() => {
@@ -34,7 +42,51 @@ export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps)
     }, 2800);
 
     return () => window.clearInterval(timer);
-  }, [hovering, total]);
+  }, [hovering, manualVersion, total]);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage || total <= 1) return;
+
+    function handleWheel(event: WheelEvent) {
+      const absX = Math.abs(event.deltaX);
+      const absY = Math.abs(event.deltaY);
+      const isHorizontalTrackpadSwipe = absX > absY * 1.15;
+      const isVerticalMouseWheel =
+        absX < 1 &&
+        (
+          event.deltaMode !== WheelEvent.DOM_DELTA_PIXEL ||
+          (absY >= MOUSE_WHEEL_MIN_DELTA && absY <= MOUSE_WHEEL_MAX_DELTA)
+        );
+
+      if (!isHorizontalTrackpadSwipe && !isVerticalMouseWheel) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const now = performance.now();
+      if (isHorizontalTrackpadSwipe) {
+        horizontalWheelRef.current += event.deltaX;
+        if (Math.abs(horizontalWheelRef.current) < TRACKPAD_SWIPE_MIN_DELTA) return;
+        if (now - lastWheelAtRef.current < WHEEL_COOLDOWN_MS) {
+          horizontalWheelRef.current = 0;
+          return;
+        }
+
+        lastWheelAtRef.current = now;
+        stepImage(horizontalWheelRef.current > 0 ? 1 : -1);
+        horizontalWheelRef.current = 0;
+        return;
+      }
+
+      if (now - lastWheelAtRef.current < WHEEL_COOLDOWN_MS) return;
+      lastWheelAtRef.current = now;
+      stepImage(event.deltaY > 0 ? 1 : -1);
+    }
+
+    stage.addEventListener('wheel', handleWheel, { passive: false });
+    return () => stage.removeEventListener('wheel', handleWheel);
+  }, [total]);
 
   const visible = images
     .map((src, index) => ({ src, index, offset: shortestOffset(index, active, total) }))
@@ -50,14 +102,28 @@ export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps)
     setTilt({ x: px * 6, y: py * -5 });
   }
 
+  function showImage(index: number) {
+    setActive(wrapIndex(index, total));
+    setManualVersion((current) => current + 1);
+  }
+
+  function stepImage(direction: 1 | -1) {
+    setActive((current) => wrapIndex(current + direction, total));
+    setManualVersion((current) => current + 1);
+  }
+
   return (
     <div className="hero-photo-deck">
       <p className="hero-photo-deck-kicker">光影档案</p>
       <div
         ref={stageRef}
         className="hero-photo-deck-stage"
-        onPointerEnter={() => setHovering(true)}
-        onPointerMove={(event) => updateTilt(event.clientX, event.clientY)}
+        onPointerEnter={(event) => {
+          if (event.pointerType === 'mouse') setHovering(true);
+        }}
+        onPointerMove={(event) => {
+          if (event.pointerType === 'mouse') updateTilt(event.clientX, event.clientY);
+        }}
         onPointerLeave={() => {
           setHovering(false);
           setTilt({ x: 0, y: 0 });
@@ -84,7 +150,7 @@ export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps)
                 opacity: distance > 1 ? 0.28 : isActive ? 1 : 0.68,
               }}
               transition={{ type: 'spring', stiffness: 130, damping: 22 }}
-              onClick={() => setActive(index)}
+              onClick={() => showImage(index)}
               aria-label={`查看个人照片 ${index + 1}`}
             >
               <img
@@ -109,7 +175,7 @@ export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps)
             type="button"
             aria-label={`切换到照片 ${index + 1}`}
             className={index === active ? 'is-active' : ''}
-            onClick={() => setActive(index)}
+            onClick={() => showImage(index)}
           />
         ))}
       </div>

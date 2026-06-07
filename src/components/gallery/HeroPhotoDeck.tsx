@@ -15,7 +15,7 @@ function shortestOffset(index: number, active: number, total: number) {
 
 const MOUSE_WHEEL_MIN_DELTA = 100;
 const MOUSE_WHEEL_MAX_DELTA = 160;
-const TRACKPAD_SWIPE_MIN_DELTA = 26;
+const TRACKPAD_SWIPE_MIN_DELTA = 42;
 const WHEEL_COOLDOWN_MS = 820;
 
 type HeroPhotoDeckProps = {
@@ -30,6 +30,7 @@ export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps)
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const stageRef = useRef<HTMLDivElement>(null);
   const lastWheelAtRef = useRef(0);
+  const horizontalWheelRef = useRef(0);
   const total = images.length;
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps)
     function handleWheel(event: WheelEvent) {
       const absX = Math.abs(event.deltaX);
       const absY = Math.abs(event.deltaY);
-      const isHorizontalTrackpadSwipe = absX >= TRACKPAD_SWIPE_MIN_DELTA && absX > absY * 1.4;
+      const isHorizontalTrackpadSwipe = absX > absY * 1.15;
       const isVerticalMouseWheel =
         absX < 1 &&
         (
@@ -64,12 +65,23 @@ export function HeroPhotoDeck({ images, priorityCount = 2 }: HeroPhotoDeckProps)
       event.stopPropagation();
 
       const now = performance.now();
-      if (now - lastWheelAtRef.current < WHEEL_COOLDOWN_MS) return;
+      if (isHorizontalTrackpadSwipe) {
+        horizontalWheelRef.current += event.deltaX;
+        if (Math.abs(horizontalWheelRef.current) < TRACKPAD_SWIPE_MIN_DELTA) return;
+        if (now - lastWheelAtRef.current < WHEEL_COOLDOWN_MS) {
+          horizontalWheelRef.current = 0;
+          return;
+        }
 
+        lastWheelAtRef.current = now;
+        stepImage(horizontalWheelRef.current > 0 ? 1 : -1);
+        horizontalWheelRef.current = 0;
+        return;
+      }
+
+      if (now - lastWheelAtRef.current < WHEEL_COOLDOWN_MS) return;
       lastWheelAtRef.current = now;
-      stepImage(isHorizontalTrackpadSwipe
-        ? (event.deltaX > 0 ? 1 : -1)
-        : (event.deltaY > 0 ? 1 : -1));
+      stepImage(event.deltaY > 0 ? 1 : -1);
     }
 
     stage.addEventListener('wheel', handleWheel, { passive: false });

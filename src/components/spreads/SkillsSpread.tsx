@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { SKILL_FLAME_LAYERS } from '@/data/content';
@@ -6,7 +7,34 @@ import { AiToolConstellation } from '@/components/skills/AiToolConstellation';
 import { ShinyText } from '@/components/effects/ShinyText';
 import { Spread } from '@/components/layout/Spread';
 
+const STABLE_FLAME_QUERY = '(max-width: 767px), (hover: none)';
+
+type LegacyMediaQueryList = MediaQueryList & {
+  addListener?: (listener: (event: MediaQueryListEvent) => void) => void;
+  removeListener?: (listener: (event: MediaQueryListEvent) => void) => void;
+};
+
+function getStableFlamePreference() {
+  return typeof window !== 'undefined' && window.matchMedia(STABLE_FLAME_QUERY).matches;
+}
+
 export function SkillsSpread() {
+  const [stableFlame, setStableFlame] = useState(getStableFlamePreference);
+
+  useEffect(() => {
+    const query: LegacyMediaQueryList = window.matchMedia(STABLE_FLAME_QUERY);
+    const update = () => setStableFlame(query.matches);
+
+    update();
+    if (typeof query.addEventListener === 'function') {
+      query.addEventListener('change', update);
+      return () => query.removeEventListener('change', update);
+    }
+
+    query.addListener?.(update);
+    return () => query.removeListener?.(update);
+  }, []);
+
   return (
     <Spread id="skills" className="overflow-hidden">
       <div className="mb-10">
@@ -20,17 +48,28 @@ export function SkillsSpread() {
       <div className="grid min-w-0 gap-10 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] xl:items-center xl:gap-14">
         <div className="skill-flame-stage">
           <motion.div
-            className="skill-flame"
-            animate={{ scale: [1, 1.018, 0.996, 1], filter: ['brightness(1)', 'brightness(1.08)', 'brightness(0.98)', 'brightness(1)'] }}
-            transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
+            className={`skill-flame${stableFlame ? ' is-stable-mobile' : ''}`}
+            animate={stableFlame ? undefined : { scale: [1, 1.018, 0.996, 1], filter: ['brightness(1)', 'brightness(1.08)', 'brightness(0.98)', 'brightness(1)'] }}
+            transition={stableFlame ? undefined : { duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
           >
             {SKILL_FLAME_LAYERS.map((layer, index) => (
               <div key={layer.id} className={`flame-layer flame-layer-${layer.intensity}`}>
-                <motion.div
-                  className="flame-layer-inner"
-                  animate={{ opacity: [0.86, 1, 0.9], y: [0, -4, 0] }}
-                  transition={{ duration: 3.2 + index * 0.4, repeat: Infinity, ease: 'easeInOut' }}
-                >
+                {stableFlame ? (
+                  <div className="flame-layer-inner">
+                    <p>{layer.title}</p>
+                    <span>{layer.subtitle}</span>
+                    <div className="flame-layer-tags">
+                      {layer.skills.slice(0, 4).map((skill) => (
+                        <em key={skill}>{skill}</em>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <motion.div
+                    className="flame-layer-inner"
+                    animate={{ opacity: [0.86, 1, 0.9], y: [0, -4, 0] }}
+                    transition={{ duration: 3.2 + index * 0.4, repeat: Infinity, ease: 'easeInOut' }}
+                  >
                   <p>{layer.title}</p>
                   <span>{layer.subtitle}</span>
                   <div className="flame-layer-tags">
@@ -38,7 +77,8 @@ export function SkillsSpread() {
                       <em key={skill}>{skill}</em>
                     ))}
                   </div>
-                </motion.div>
+                  </motion.div>
+                )}
               </div>
             ))}
           </motion.div>

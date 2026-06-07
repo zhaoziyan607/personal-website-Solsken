@@ -48,7 +48,7 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <div className="min-h-screen bg-void text-text">
       {loading && <FlameWakeLoader />}
 
       <div
@@ -69,6 +69,6 @@ export default function App() {
           <ContactSpread />
         </MagazineShell>
       </div>
-    </>
+    </div>
   );
 }

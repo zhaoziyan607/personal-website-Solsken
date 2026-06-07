@@ -19,12 +19,20 @@
 
 @layer base {
   html {
+    min-height: 100%;
+    background: #08070a;
     scroll-behavior: smooth;
     scroll-padding-top: 4.75rem;
   }
 
+  #root {
+    min-height: 100dvh;
+    background: #08070a;
+  }
+
   body {
     @apply bg-void text-text font-sans antialiased text-[17px] leading-relaxed;
+    min-height: 100dvh;
     background:
       radial-gradient(circle at 50% 0%, rgba(213, 181, 111, 0.08), transparent 34rem),
       linear-gradient(135deg, rgba(8, 7, 10, 1), rgba(17, 12, 15, 1) 48%, rgba(8, 7, 10, 1));
@@ -1623,12 +1631,40 @@
     min-height: 31rem;
   }
 
+  .skill-flame-stage::before {
+    filter: none;
+    opacity: 0.42;
+  }
+
+  .skill-flame.is-stable-mobile,
+  .skill-flame.is-stable-mobile::before,
+  .skill-flame.is-stable-mobile::after {
+    animation: none;
+    filter: none;
+  }
+
   .flame-orbit-tags {
     display: none;
   }
 
   .flame-layer {
+    transform: translateX(-50%) translateZ(0);
+    background:
+      linear-gradient(90deg, rgba(8, 7, 10, 0.36), rgba(8, 7, 10, 0.66), rgba(8, 7, 10, 0.36)),
+      rgba(8, 7, 10, 0.5);
+    backdrop-filter: none;
     padding: 0.72rem 0.85rem;
+    backface-visibility: hidden;
+  }
+
+  .flame-layer-inner {
+    opacity: 1 !important;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .flame-layer-tags em {
+    background: rgba(8, 7, 10, 0.58);
   }
 
   .flame-layer p {
